@@ -275,5 +275,6 @@ def get_weather_api():
     """Get or create weather API instance"""
     global weather_api
     if weather_api is None:
-        weather_api = WeatherAPI()
+        from config import OPENWEATHER_API_KEY
+        weather_api = WeatherAPI(api_key=OPENWEATHER_API_KEY)
     return weather_api
