@@ -80,23 +80,70 @@ def main():
     
     # Check if API key is configured
     try:
+        from config import OPENWEATHER_API_KEY
+        
+        # Debug info for development
+        if st.sidebar.checkbox("디버그 정보", value=False):
+            st.sidebar.write(f"API 키 상태: {'설정됨' if OPENWEATHER_API_KEY else '없음'}")
+            if OPENWEATHER_API_KEY:
+                st.sidebar.write(f"API 키 첫 10자: {OPENWEATHER_API_KEY[:10]}...")
+            
+            # Check secrets availability
+            try:
+                import streamlit as st_check
+                if hasattr(st_check, 'secrets'):
+                    st.sidebar.write("Streamlit secrets 사용 가능")
+                    try:
+                        api_key_from_secrets = st_check.secrets.get("api", {}).get("openweather_key", "")
+                        st.sidebar.write(f"Secrets에서 API 키: {'있음' if api_key_from_secrets else '없음'}")
+                    except Exception as e:
+                        st.sidebar.write(f"Secrets 오류: {str(e)}")
+                else:
+                    st.sidebar.write("Streamlit secrets 사용 불가")
+            except:
+                st.sidebar.write("Secrets 확인 실패")
+        
         weather_api = get_weather_api()
         if not weather_api.api_key:
             st.error("🔑 API 키가 설정되지 않았습니다!")
-            st.info("""
-            **Streamlit Cloud 배포 시**: 
-            1. 앱 설정 → Secrets에서 다음 내용을 추가하세요:
-            ```
-            [api]
-            openweather_key = "your_api_key_here"
-            ```
             
-            **로컬 실행 시**: 
-            .env 파일에 `OPENWEATHER_API_KEY=your_api_key_here`를 추가하세요.
-            """)
+            # Check deployment environment
+            import streamlit as st_env
+            if hasattr(st_env, 'secrets'):
+                st.info("""
+                **Streamlit Cloud 배포 환경**에서 실행 중입니다.
+                
+                📋 **해결 방법**:
+                1. 앱 설정 → **Secrets** 탭으로 이동
+                2. 다음 내용을 추가하세요:
+                ```
+                [api]
+                openweather_key = "f4e5ad99faddf91dce8add9f4ec8723f"
+                
+                [app]
+                default_city = "Seoul"
+                default_country = "KR"
+                cache_ttl_seconds = 600
+                ```
+                3. 저장 후 앱이 자동으로 재시작됩니다.
+                """)
+            else:
+                st.info("""
+                **로컬 개발 환경**에서 실행 중입니다.
+                
+                📋 **해결 방법**:
+                `.env` 파일에 다음 내용을 추가하세요:
+                ```
+                OPENWEATHER_API_KEY=f4e5ad99faddf91dce8add9f4ec8723f
+                DEFAULT_CITY=Seoul
+                DEFAULT_COUNTRY=KR
+                CACHE_TTL_SECONDS=600
+                ```
+                """)
             return
     except Exception as e:
         st.error(f"설정 오류: {str(e)}")
+        st.info("앱을 새로고침하거나 관리자에게 문의하세요.")
         return
     
     # Sidebar configuration
