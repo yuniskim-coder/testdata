@@ -49,7 +49,7 @@ ENV/
 env/
 .venv/
 
-# Environment variables
+# Environment variables (local development only)
 .env
 
 # IDE
@@ -63,5 +63,9 @@ env/
 .DS_Store
 Thumbs.db
 
-# Streamlit
+# Streamlit (local cache and logs)
 .streamlit/
+
+# Don't ignore Streamlit config for deployment
+!.streamlit/config.toml
+!.streamlit/secrets.toml
