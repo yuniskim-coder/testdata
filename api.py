@@ -52,7 +52,48 @@ class ForecastData:
     weather_icon: str
     humidity: int
     wind_speed: float
-    pop: float  # Probability of precipitation
+    pop: float = 0.0  # 강수 확률 추가
+    
+    
+@dataclass
+class HourlyForecastData:
+    """Data class for hourly forecast (minutely alternative)"""
+    timestamp: int
+    temperature: float
+    feels_like: float
+    weather_main: str
+    weather_description: str
+    weather_icon: str
+    humidity: int
+    wind_speed: float
+    precipitation: float
+
+
+@dataclass
+class DailyForecastData:
+    """Data class for daily forecast information"""
+    timestamp: int
+    temp_day: float
+    temp_min: float
+    temp_max: float
+    temp_night: float
+    temp_eve: float
+    temp_morn: float
+    feels_like_day: float
+    humidity: int
+    wind_speed: float
+    weather_main: str
+    weather_description: str
+    weather_icon: str
+    sunrise: int
+    sunset: int
+    uvi: float
+
+
+@dataclass 
+class WeeklyForecastData:
+    """Data class for 7-day weekly forecast"""
+    daily_forecasts: List[DailyForecastData]
 
 
 class WeatherAPIError(Exception):
@@ -266,6 +307,178 @@ class WeatherAPI:
             })
         
         return daily_forecasts
+
+    def get_weekly_forecast(self, location: Dict[str, str], units: str = "metric") -> WeeklyForecastData:
+        """
+        Get 7-day weekly weather forecast using OneCall API
+        
+        Args:
+            location: Dict with 'q' (city name) or 'lat'/'lon' (coordinates)
+            units: Temperature units ('metric', 'imperial', 'standard')
+            
+        Returns:
+            WeeklyForecastData object with 7-day forecast
+        """
+        # First get coordinates if city name provided
+        if 'q' in location:
+            current_weather = self.get_current_weather(location, units)
+            lat, lon = current_weather.lat, current_weather.lon
+        else:
+            lat, lon = location['lat'], location['lon']
+        
+        # Use OneCall API for detailed 7-day forecast
+        params = {
+            'lat': lat,
+            'lon': lon,
+            'units': units,
+            'lang': 'kr',
+            'exclude': 'current,minutely,alerts'  # Only get daily and hourly
+        }
+        
+        try:
+            response_data = self._make_request("onecall", params)
+        except WeatherAPIError:
+            # OneCall API 접근 불가 시 기본 forecast API 사용
+            logger.info("OneCall API 사용 불가, 기본 forecast API로 대체")
+            daily_basic = self.get_daily_forecast(location, units, days=5)
+            daily_forecasts = []
+            for day in daily_basic:
+                daily_forecasts.append(DailyForecastData(
+                    timestamp=int(time.mktime(time.strptime(day['date'], '%Y-%m-%d'))),
+                    temp_day=day['temp_avg'],
+                    temp_min=day['temp_min'],
+                    temp_max=day['temp_max'],
+                    temp_night=day['temp_min'],
+                    temp_eve=day['temp_avg'],
+                    temp_morn=day['temp_avg'],
+                    feels_like_day=day['temp_avg'],
+                    humidity=int(day['humidity_avg']),
+                    wind_speed=day['wind_speed_avg'],
+                    weather_main=day['weather_description'],
+                    weather_description=day['weather_description'],
+                    weather_icon=day['weather_icon'],
+                    sunrise=0,
+                    sunset=0,
+                    uvi=0.0
+                ))
+            return WeeklyForecastData(daily_forecasts=daily_forecasts)
+        
+        # Parse OneCall API response
+        daily_forecasts = []
+        for day_data in response_data.get('daily', [])[:7]:
+            daily_forecasts.append(DailyForecastData(
+                timestamp=day_data['dt'],
+                temp_day=day_data['temp']['day'],
+                temp_min=day_data['temp']['min'],
+                temp_max=day_data['temp']['max'],
+                temp_night=day_data['temp']['night'],
+                temp_eve=day_data['temp']['eve'],
+                temp_morn=day_data['temp']['morn'],
+                feels_like_day=day_data['feels_like']['day'],
+                humidity=day_data['humidity'],
+                wind_speed=day_data['wind_speed'],
+                weather_main=day_data['weather'][0]['main'],
+                weather_description=day_data['weather'][0]['description'],
+                weather_icon=day_data['weather'][0]['icon'],
+                sunrise=day_data['sunrise'],
+                sunset=day_data['sunset'],
+                uvi=day_data['uvi']
+            ))
+        
+        return WeeklyForecastData(daily_forecasts=daily_forecasts)
+
+    def get_hourly_forecast(self, location: Dict[str, str], units: str = "metric", hours: int = 24) -> List[HourlyForecastData]:
+        """
+        Get hourly weather forecast (as alternative to minutely)
+        
+        Args:
+            location: Dict with 'q' (city name) or 'lat'/'lon' (coordinates)
+            units: Temperature units ('metric', 'imperial', 'standard')
+            hours: Number of hours to forecast (max 48)
+            
+        Returns:
+            List of HourlyForecastData objects
+        """
+        # First get coordinates if city name provided
+        if 'q' in location:
+            current_weather = self.get_current_weather(location, units)
+            lat, lon = current_weather.lat, current_weather.lon
+        else:
+            lat, lon = location['lat'], location['lon']
+        
+        # Use OneCall API for hourly forecast
+        params = {
+            'lat': lat,
+            'lon': lon,
+            'units': units,
+            'lang': 'kr',
+            'exclude': 'current,daily,minutely,alerts'
+        }
+        
+        try:
+            response_data = self._make_request("onecall", params)
+        except WeatherAPIError:
+            # Fallback to basic forecast converted to hourly
+            basic_forecasts = self.get_forecast(location, units)
+            hourly_forecasts = []
+            for forecast in basic_forecasts[:min(hours, len(basic_forecasts))]:
+                hourly_forecasts.append(HourlyForecastData(
+                    timestamp=forecast.timestamp,
+                    temperature=forecast.temperature,
+                    feels_like=forecast.temperature,
+                    weather_main=forecast.weather_main,
+                    weather_description=forecast.weather_description,
+                    weather_icon=forecast.weather_icon,
+                    humidity=forecast.humidity,
+                    wind_speed=forecast.wind_speed,
+                    precipitation=forecast.pop * 10  # Convert percentage to mm estimate
+                ))
+            return hourly_forecasts
+        
+        # Parse OneCall API response
+        hourly_forecasts = []
+        for hour_data in response_data.get('hourly', [])[:hours]:
+            precipitation = 0
+            if 'rain' in hour_data:
+                precipitation += hour_data['rain'].get('1h', 0)
+            if 'snow' in hour_data:
+                precipitation += hour_data['snow'].get('1h', 0)
+                
+            hourly_forecasts.append(HourlyForecastData(
+                timestamp=hour_data['dt'],
+                temperature=hour_data['temp'],
+                feels_like=hour_data['feels_like'],
+                weather_main=hour_data['weather'][0]['main'],
+                weather_description=hour_data['weather'][0]['description'],
+                weather_icon=hour_data['weather'][0]['icon'],
+                humidity=hour_data['humidity'],
+                wind_speed=hour_data['wind_speed'],
+                precipitation=precipitation
+            ))
+        
+        return hourly_forecasts
+
+    def get_multiple_cities_weather(self, cities: List[Dict[str, str]], units: str = "metric") -> List[WeatherData]:
+        """
+        Get current weather for multiple cities
+        
+        Args:
+            cities: List of location dicts with 'q' (city name) or 'lat'/'lon'
+            units: Temperature units ('metric', 'imperial', 'standard')
+            
+        Returns:
+            List of WeatherData objects
+        """
+        weather_data = []
+        for city in cities:
+            try:
+                weather = self.get_current_weather(city, units)
+                weather_data.append(weather)
+            except WeatherAPIError as e:
+                logger.warning(f"Failed to get weather for {city}: {e}")
+                continue
+        
+        return weather_data
 
 
 # Create a global instance only when API key is available

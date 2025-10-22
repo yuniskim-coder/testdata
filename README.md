@@ -1,179 +1,189 @@
-# 🌤️ 날씨 정보 앱
+# 🌤️ 고급 날씨 웹 애플리케이션
 
-OpenWeather API를 사용하여 실시간 날씨 정보와 예보를 제공하는 Streamlit 기반 웹 애플리케이션입니다.
+OpenWeather API를 활용한 Streamlit 기반의 종합 날씨 정보 플랫폼
 
-## ✨ 주요 기능
+## ✨ 새로운 기능들
 
-- 🌍 **실시간 날씨 정보**: 현재 기온, 체감온도, 습도, 풍속, 기압 등
-- 📅 **5일 일기예보**: 최고/최저 기온, 강수확률, 날씨 상태
-- 📊 **시각화 차트**: 기온 변화, 습도, 강수확률 그래프
-- 🗺️ **지도 표시**: 검색한 위치를 지도에서 확인
-- 🌡️ **단위 변환**: 섭씨/화씨/켈빈 온도 단위 선택
-- 🔍 **다양한 검색 방식**: 도시명 또는 위도/경도 좌표 입력
+### 🆕 2024년 10월 업데이트 - 7가지 추가 기능!
 
-## 🚀 시작하기
+1. **📅 주간 날씨 예보** - 7일간의 상세한 날씨 정보
+2. **⏰ 시간별 날씨 예보** - 24/48시간 단위의 정밀한 예보
+3. **🌍 지역별 날씨 비교** - 여러 도시의 날씨를 동시에 비교
+4. **📍 현재 위치 날씨** - 브라우저 GPS를 이용한 자동 위치 감지
+5. **⭐ 즐겨찾기 시스템** - 자주 확인하는 지역 저장 및 관리
+6. **📊 날씨 기록 저장** - 특별한 날씨 정보를 메모와 함께 저장
+7. **🕒 검색 히스토리** - 최근 검색한 지역들의 빠른 재검색
 
-### 1. 환경 설정
+## 🌟 주요 기능
 
-```bash
-# 저장소 클론
-git clone <repository-url>
-cd testdata
+### 📊 현재 날씨 대시보드
+- 실시간 온도, 습도, 풍속, 기압 정보
+- 체감온도 및 상세 날씨 설명
+- 날씨 아이콘과 이모지로 직관적 표시
+- 인터랙티브 온도 게이지 차트
 
-# 가상환경 생성 (권장)
-python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+### 📅 주간 예보 시스템
+- 7일간의 상세 날씨 정보
+- 최고/최저 기온 트렌드 차트
+- 일별 날씨 아이콘 및 설명
+- 주간 온도 변화 그래프
 
-# 의존성 설치
-pip install -r requirements.txt
+### ⏰ 시간별 예보
+- 24시간/48시간 단위 선택 가능
+- 시간별 온도 및 습도 변화
+- 강수 확률 및 풍속 정보
+- 인터랙티브 시간별 차트
+
+### 🌍 지역 비교 기능
+- 최대 5개 도시 동시 비교
+- 인기 도시 템플릿 제공
+- 비교 차트 및 테이블 뷰
+- 국가별 도시 분류
+
+### 📍 위치 서비스
+- 브라우저 GPS 자동 감지
+- 수동 위치 입력 지원
+- 인기 도시 빠른 선택
+- 지역별 도시 카테고리
+
+### ⭐ 개인화 기능
+- **즐겨찾기**: 자주 보는 지역 저장
+- **검색 히스토리**: 최근 검색 기록
+- **날씨 기록**: 특별한 날씨 저장
+- **개인 메모**: 날씨와 함께 기록
+
+## 🎯 사용법
+
+### 1. 기본 사용
+1. 사이드바에서 도시 이름 입력 또는 선택
+2. "📍 현재 위치 사용" 버튼으로 자동 위치 감지
+3. 다양한 탭에서 원하는 정보 확인
+
+### 2. 즐겨찾기 활용
+1. "⭐ 즐겨찾기" 탭에서 새 위치 추가
+2. 사이드바에서 저장된 즐겨찾기 빠른 접근
+3. 즐겨찾기 관리 및 삭제
+
+### 3. 날씨 기록 저장
+1. "📊 내 기록" 탭에서 현재 날씨 저장
+2. 개인 메모 추가 가능
+3. 저장된 기록 조회 및 관리
+
+### 4. 지역 비교
+1. "🌍 지역 비교" 탭에서 도시 선택
+2. 최대 5개 지역 동시 비교
+3. 비교 차트로 시각적 분석
+
+## 🚀 설치 및 실행
+
+### 요구사항
 ```
-
-### 2. API 키 설정
-
-1. [OpenWeatherMap](https://openweathermap.org/api)에서 무료 API 키를 발급받으세요.
-2. `.env.example` 파일을 복사하여 `.env` 파일을 생성하세요:
-
-```bash
-cp .env.example .env
+streamlit
+requests
+python-dotenv
+pandas
+plotly
 ```
-
-3. `.env` 파일에서 API 키를 설정하세요:
-
-```env
-OPENWEATHER_API_KEY=f4e5ad99faddf91dce8add9f4ec8723f
-DEFAULT_CITY=Seoul
-DEFAULT_COUNTRY=KR
-CACHE_TTL_SECONDS=600
-```
-
-### 3. 애플리케이션 실행
-
-```bash
-streamlit run app.py
-```
-
-브라우저에서 `http://localhost:8501`로 접속하여 앱을 사용할 수 있습니다.
-
-## 📱 사용법
-
-### 위치 검색
-- **도시명**: `Seoul`, `Seoul,KR`, `New York,US` 형식으로 입력
-- **좌표**: 위도/경도를 직접 입력 (예: 37.5665, 126.9780)
-
-### 설정 옵션
-- **온도 단위**: 섭씨(°C), 화씨(°F), 켈빈(K) 선택
-- **예보 일수**: 1-5일 예보 기간 선택
-- **자동 새로고침**: 캐시된 데이터를 새로 불러오기
-
-## 🏗️ 프로젝트 구조
-
-```
-testdata/
-├── app.py                    # Streamlit 메인 애플리케이션
-├── api.py                    # OpenWeather API 클라이언트
-├── utils.py                  # 유틸리티 함수들
-├── config.py                 # 설정 및 환경변수
-├── requirements.txt          # Python 의존성
-├── packages.txt              # 시스템 패키지 (Streamlit Cloud용)
-├── .env.example              # 환경변수 템플릿
-├── .gitignore               # Git 무시 파일 목록
-├── .streamlit/
-│   ├── config.toml          # Streamlit 설정
-│   └── secrets.toml         # 배포용 환경변수 템플릿
-├── tests/
-│   └── test_weather_app.py  # 유닛 테스트
-└── README.md                # 프로젝트 문서
-```
-
-## 🔧 기술 스택
-
-- **Frontend**: Streamlit
-- **API**: OpenWeather API
-- **시각화**: Plotly
-- **데이터 처리**: Pandas
-- **HTTP 클라이언트**: Requests
-
-## 🌐 배포
-
-### Streamlit Cloud 배포 (권장)
-
-1. **GitHub 저장소 준비**
-   ```bash
-   git add .
-   git commit -m "Add weather app"
-   git push origin main
-   ```
-
-2. **Streamlit Cloud 배포**
-   - [Streamlit Cloud](https://share.streamlit.io/)에 로그인
-   - "New app" → "From existing repo" 선택
-   - 저장소 URL 입력: `https://github.com/yuniskim-coder/testdata`
-   - Main file path: `app.py`
-   - Branch: `main`
-
-3. **환경변수(Secrets) 설정**
-   
-   배포 후 앱 설정에서 **Secrets** 탭에 다음 내용을 추가:
-   ```toml
-   [api]
-   openweather_key = "f4e5ad99faddf91dce8add9f4ec8723f"
-
-   [app]
-   default_city = "Seoul"
-   default_country = "KR" 
-   cache_ttl_seconds = 600
-   ```
-
-4. **배포 완료**
-   - 자동으로 빌드 및 배포됩니다
-   - 공유 가능한 URL이 생성됩니다 (예: `https://your-app-name.streamlit.app`)
 
 ### 로컬 실행
-
 ```bash
-# 환경 설정
+# 의존성 설치
 pip install -r requirements.txt
-
-# .env 파일 생성
-cp .env.example .env
-# .env에서 API 키 설정
 
 # 앱 실행
 streamlit run app.py
 ```
 
-### 배포된 앱 특징
+### 환경 설정
+1. OpenWeather API 키 발급 (https://openweathermap.org/api)
+2. `.env` 파일 생성 후 API 키 추가:
+   ```
+   OPENWEATHER_API_KEY=your_api_key_here
+   ```
 
-- ✅ **자동 HTTPS**: 보안 연결
-- ✅ **무료 호스팅**: Streamlit Cloud 무료 플랜
-- ✅ **자동 업데이트**: GitHub push 시 자동 재배포
-- ✅ **커스텀 도메인**: 설정 가능 (Pro 플랜)
-- ✅ **환경변수 관리**: Secrets로 안전한 API 키 관리
+## 📱 배포
 
-### Docker 배포 (선택사항)
+### Streamlit Cloud 배포
+1. GitHub 레포지토리에 코드 업로드
+2. [streamlit.io](https://streamlit.io)에서 앱 배포
+3. API 키는 코드에 내장되어 별도 설정 불필요
 
-```dockerfile
-FROM python:3.9-slim
+## 🗂️ 프로젝트 구조
 
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-
-EXPOSE 8501
-
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+```
+testdata/
+├── app.py                 # 메인 애플리케이션 (탭 기반 UI)
+├── api.py                 # OpenWeather API 클라이언트 (확장된 기능)
+├── utils.py               # 유틸리티 함수들
+├── config.py              # 설정 관리
+├── storage.py             # 로컬 데이터 저장 시스템
+├── location_service.py    # 위치 서비스 및 GPS 기능
+├── requirements.txt       # Python 의존성
+├── runtime.txt           # Python 버전 명시
+├── .streamlit/           # Streamlit 설정
+│   └── config.toml
+├── data/                 # 로컬 데이터 저장소
+│   ├── favorites.json    # 즐겨찾기
+│   ├── search_history.json # 검색 히스토리
+│   └── saved_weather.json  # 저장된 날씨 기록
+└── README.md
 ```
 
-```bash
-# Docker 이미지 빌드
-docker build -t weather-app .
+## 🎨 특징
 
-# 컨테이너 실행
-docker run -p 8501:8501 -e OPENWEATHER_API_KEY=your_key weather-app
-```
+### 🎯 사용자 경험
+- **직관적 탭 기반 인터페이스**
+- **반응형 디자인** - 모바일/데스크톱 최적화
+- **실시간 업데이트** - 캐싱으로 빠른 응답
+- **다국어 지원** - 한국어 날씨 설명
+
+### 📊 데이터 시각화
+- **Plotly 인터랙티브 차트**
+- **색상 코딩된 온도 표시**
+- **애니메이션 효과**
+- **커스텀 스타일링**
+
+### 🔧 기술적 특징
+- **강력한 오류 처리**
+- **API 재시도 로직**
+- **로컬 데이터 저장**
+- **성능 최적화된 캐싱**
+
+## 🌍 지원 지역
+
+### 전 세계 도시 지원
+- **한국**: 서울, 부산, 대구, 인천, 광주, 대전, 울산, 제주
+- **아시아**: 도쿄, 베이징, 상하이, 방콕, 싱가포르, 홍콩, 타이베이, 자카르타
+- **유럽**: 런던, 파리, 베를린, 로마, 마드리드, 암스테르담, 취리히, 스톡홀름
+- **아메리카**: 뉴욕, LA, 토론토, 멕시코시티, 상파울루, 부에노스아이레스, 시카고, 마이애미
+
+## 📈 업데이트 내역
+
+### v2.0 (2024.10) - 메이저 업데이트
+- ✅ 7가지 새로운 기능 추가
+- ✅ 탭 기반 UI 재설계
+- ✅ 로컬 데이터 저장 시스템
+- ✅ GPS 위치 서비스 통합
+- ✅ 개인화 기능 대폭 강화
+
+### v1.0 (2024.09)
+- ✅ 기본 날씨 정보 표시
+- ✅ 5일 예보
+- ✅ 차트 및 지도 시각화
+- ✅ Streamlit Cloud 배포
+
+## 🤝 기여하기
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다.
 
 ---
 
-**Made with ❤️ using Streamlit and OpenWeather API**
+**🌤️ 전 세계 어디서나 정확하고 아름다운 날씨 정보를!**
