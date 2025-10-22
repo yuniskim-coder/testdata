@@ -1,12 +1,12 @@
 [
   {
-    "query": "Incheon,KR",
-    "timestamp": "2025-10-22T11:45:14.946229",
+    "query": "Seoul,KR",
+    "timestamp": "2025-10-22T11:47:54.903552",
     "success": true
   },
   {
-    "query": "Seoul,KR",
-    "timestamp": "2025-10-22T11:45:06.018021",
+    "query": "Incheon,KR",
+    "timestamp": "2025-10-22T11:45:14.946229",
     "success": true
   },
   {

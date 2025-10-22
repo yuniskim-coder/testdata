@@ -153,7 +153,7 @@ def setup_sidebar():
                         st.session_state.selected_location = english_name
                     else:
                         st.session_state.selected_location = suggestion
-                    st.experimental_rerun()
+                    st.rerun()
     
     # 검색 히스토리
     history = storage.get_search_history(5)
@@ -162,7 +162,7 @@ def setup_sidebar():
         for item in history:
             if st.sidebar.button(f"🔄 {item.query}", key=f"history_{item.timestamp}"):
                 st.session_state.selected_location = item.query
-                st.experimental_rerun()
+                st.rerun()
     
     # 인기 도시
     st.sidebar.subheader("🌟 인기 도시")
@@ -177,7 +177,7 @@ def setup_sidebar():
     for city in popular_cities[selected_region]:
         if st.sidebar.button(f"{city['name']}", key=f"popular_{city['query']}"):
             st.session_state.selected_location = city['query']
-            st.experimental_rerun()
+            st.rerun()
     
     # 설정된 위치 저장
     if city_input:
@@ -190,7 +190,7 @@ def setup_sidebar():
         for fav in favorites[:5]:  # 상위 5개만 표시
             if st.sidebar.button(f"⭐ {fav.name}", key=f"fav_{fav.query}"):
                 st.session_state.selected_location = fav.query
-                st.experimental_rerun()
+                st.rerun()
     
     # 앱 정보
     st.sidebar.markdown("---")
@@ -353,7 +353,7 @@ def favorites_tab():
         if fav_name and fav_query:
             if storage.add_favorite(fav_name, fav_query):
                 st.success(f"✅ '{fav_name}' 즐겨찾기에 추가됨!")
-                st.experimental_rerun()
+                st.rerun()
             else:
                 st.warning("이미 즐겨찾기에 있는 위치입니다.")
         else:
@@ -377,12 +377,12 @@ def favorites_tab():
         with col3:
             if st.button("보기", key=f"view_{fav.query}"):
                 st.session_state.selected_location = fav.query
-                st.experimental_rerun()
+                st.rerun()
         with col4:
             if st.button("삭제", key=f"delete_{fav.query}"):
                 storage.remove_favorite(fav.query)
                 st.success(f"'{fav.name}' 삭제됨!")
-                st.experimental_rerun()
+                st.rerun()
 
 def saved_records_tab():
     """저장된 기록 탭"""
@@ -411,7 +411,7 @@ def saved_records_tab():
                 
                 storage.save_weather_record(location_str, weather_data, note)
                 st.success("✅ 날씨 기록이 저장되었습니다!")
-                st.experimental_rerun()
+                st.rerun()
                 
             except WeatherAPIError as e:
                 st.error(f"❌ 날씨 정보를 가져올 수 없습니다: {e}")
@@ -442,7 +442,7 @@ def saved_records_tab():
             if st.button("🗑️ 삭제", key=f"del_record_{record.timestamp}"):
                 storage.delete_weather_record(record.timestamp)
                 st.success("기록이 삭제되었습니다!")
-                st.experimental_rerun()
+                st.rerun()
 
 # 디스플레이 함수들
 def display_current_weather(weather):
