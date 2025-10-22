@@ -41,6 +41,34 @@ git push origin main
 - Branch: `main`
 - Main file path: `app.py`
 
+## 🔧 배포 문제 해결
+
+### installer returned a non-zero exit code 오류
+이 오류가 발생한 경우:
+
+1. **requirements.txt 최적화 완료**
+   ```txt
+   streamlit
+   requests
+   python-dotenv
+   pandas
+   plotly
+   ```
+
+2. **재배포 방법**
+   - GitHub에 변경사항 푸시
+   - Streamlit Cloud에서 "Reboot app" 클릭
+   - 또는 앱 삭제 후 다시 배포
+
+3. **대안 방법 (문제 지속시)**
+   ```txt
+   # 더 안정적인 최소 버전
+   streamlit==1.25.0
+   requests==2.28.0
+   pandas==1.5.0
+   plotly==5.10.0
+   ```
+
 ### 3. Secrets 설정 (선택사항 - 이미 기본값 포함됨!)
 
 **📌 중요**: 이제 API 키가 코드에 기본값으로 포함되어 있어서 별도 설정 없이도 바로 작동합니다!
