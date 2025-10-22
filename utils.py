@@ -70,11 +70,36 @@ def format_datetime(timestamp: int, timezone_offset: int = 0) -> str:
     return dt.strftime("%Y년 %m월 %d일 %H:%M")
 
 
-def get_weather_emoji(weather_main: str, weather_id: int) -> str:
+def format_timestamp(timestamp: int, format_type: str = "datetime") -> str:
+    """
+    Format unix timestamp to various readable formats.
+    
+    Args:
+        timestamp: Unix timestamp
+        format_type: 'datetime', 'date', 'time', 'short'
+    
+    Returns:
+        Formatted string
+    """
+    dt = datetime.fromtimestamp(timestamp)
+    
+    if format_type == "datetime":
+        return dt.strftime("%Y년 %m월 %d일 %H:%M")
+    elif format_type == "date":
+        return dt.strftime("%m월 %d일")
+    elif format_type == "time":
+        return dt.strftime("%H:%M")
+    elif format_type == "short":
+        return dt.strftime("%m/%d %H:%M")
+    else:
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def get_weather_emoji(weather_main: str, weather_id: int = None) -> str:
     """Get emoji representation of weather condition."""
     weather_emojis = {
         "Clear": "☀️",
-        "Clouds": "☁️",
+        "Clouds": "☁️", 
         "Rain": "🌧️",
         "Drizzle": "🌦️",
         "Thunderstorm": "⛈️",
