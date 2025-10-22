@@ -65,8 +65,8 @@ class WeatherAPI:
     
     def __init__(self, api_key: str = None):
         self.api_key = api_key or OPENWEATHER_API_KEY
-        if not self.api_key:
-            raise WeatherAPIError("API 키가 설정되지 않았습니다. .env 파일을 확인해주세요.")
+        # Don't raise error during initialization for deployment
+        # Error will be raised when making actual API calls
     
     def _make_request(self, endpoint: str, params: Dict) -> Dict:
         """
@@ -82,6 +82,10 @@ class WeatherAPI:
         Raises:
             WeatherAPIError: If request fails after retries
         """
+        # Check API key here instead of __init__
+        if not self.api_key:
+            raise WeatherAPIError("API 키가 설정되지 않았습니다. Streamlit Secrets에서 API 키를 설정해주세요.")
+        
         url = f"{OPENWEATHER_BASE_URL}/{endpoint}"
         params['appid'] = self.api_key
         
@@ -264,5 +268,12 @@ class WeatherAPI:
         return daily_forecasts
 
 
-# Create a global instance
-weather_api = WeatherAPI()
+# Create a global instance only when API key is available
+weather_api = None
+
+def get_weather_api():
+    """Get or create weather API instance"""
+    global weather_api
+    if weather_api is None:
+        weather_api = WeatherAPI()
+    return weather_api

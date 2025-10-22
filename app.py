@@ -8,7 +8,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import time
 
-from api import weather_api, WeatherAPIError
+from api import get_weather_api, WeatherAPIError
 from utils import (
     parse_location_input, 
     format_temperature, 
@@ -78,6 +78,27 @@ def main():
     st.title("🌤️ 날씨 정보 앱")
     st.markdown("**OpenWeather API**를 사용하여 실시간 날씨 정보와 예보를 제공합니다.")
     
+    # Check if API key is configured
+    try:
+        weather_api = get_weather_api()
+        if not weather_api.api_key:
+            st.error("🔑 API 키가 설정되지 않았습니다!")
+            st.info("""
+            **Streamlit Cloud 배포 시**: 
+            1. 앱 설정 → Secrets에서 다음 내용을 추가하세요:
+            ```
+            [api]
+            openweather_key = "your_api_key_here"
+            ```
+            
+            **로컬 실행 시**: 
+            .env 파일에 `OPENWEATHER_API_KEY=your_api_key_here`를 추가하세요.
+            """)
+            return
+    except Exception as e:
+        st.error(f"설정 오류: {str(e)}")
+        return
+    
     # Sidebar configuration
     with st.sidebar:
         st.header("⚙️ 설정")
@@ -136,6 +157,7 @@ def main():
                 
                 # Get current weather with error handling
                 try:
+                    weather_api = get_weather_api()
                     current_weather = weather_api.get_current_weather(location_params, units)
                 except Exception as e:
                     st.error(f"현재 날씨 정보를 가져오는 중 오류가 발생했습니다: {str(e)}")

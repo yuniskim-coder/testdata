@@ -10,7 +10,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils import parse_location_input, format_temperature, get_weather_emoji
-from api import WeatherAPI, WeatherAPIError
+from api import WeatherAPI, WeatherAPIError, get_weather_api
 
 
 class TestUtils(unittest.TestCase):
