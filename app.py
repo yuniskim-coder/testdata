@@ -20,7 +20,7 @@ except ImportError:
     WeeklyForecastData = None
     HourlyForecastData = None  
     DailyForecastData = None
-from utils import parse_location_input, format_temperature, get_weather_emoji, format_timestamp
+from utils import parse_location_input, format_temperature, get_weather_emoji, format_timestamp, search_korean_cities
 from storage import storage
 from location_service import location_service, get_popular_cities
 
@@ -133,10 +133,27 @@ def setup_sidebar():
         st.sidebar.error(f"위치 오류: {location_service.get_location_error()}")
     
     # 도시 검색
+    st.sidebar.subheader("🔍 도시 검색")
     city_input = st.sidebar.text_input(
-        "🔍 도시 검색",
-        placeholder="예: Seoul, London, New York"
+        "도시명 입력 (한글/영문)",
+        placeholder="예: 서울, 부산, Seoul, London",
+        help="한글 도시명도 지원합니다! 예: 서울, 부산, 도쿄, 뉴욕 등"
     )
+    
+    # 한글 검색 자동완성
+    if city_input and len(city_input) >= 1:
+        suggestions = search_korean_cities(city_input)
+        if suggestions:
+            st.sidebar.markdown("**💡 추천 검색어:**")
+            for suggestion in suggestions[:5]:
+                if st.sidebar.button(f"🔍 {suggestion}", key=f"suggest_{suggestion}"):
+                    # 괄호 안의 영문명 추출
+                    if '(' in suggestion:
+                        english_name = suggestion.split('(')[1].replace(')', '')
+                        st.session_state.selected_location = english_name
+                    else:
+                        st.session_state.selected_location = suggestion
+                    st.experimental_rerun()
     
     # 검색 히스토리
     history = storage.get_search_history(5)
